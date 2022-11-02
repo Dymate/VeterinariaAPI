@@ -6,7 +6,13 @@ import jwt from 'jsonwebtoken';
 export const getUsers = async (req, res) => {
     try{
         const  users = await User.findAll()
-        res.json(users)
+        const cleanPassword = users.map((user) =>({
+          ...user.dataValues,
+          password : undefined,
+          confirmPassword : undefined
+        }))
+      
+        res.json(cleanPassword)
     }catch(e){
         return res.status(500).json({message: e.message})
     }
@@ -25,7 +31,8 @@ export const getUser = async (req, res) => {
     if(!user){
       return res.status(404).json({message:'Usuario no existe.'})
     }
-  
+    user.password = undefined;
+    user.confirmPassword = undefined;
     res.json(user)
   } catch (error) {
     return res.status(500).json({message: error.message})
