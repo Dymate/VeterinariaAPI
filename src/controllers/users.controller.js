@@ -1,114 +1,125 @@
-import {User} from '../models/User.js'
+import { User } from '../models/User.js'
 import { Pet } from '../models/Pet.js'
-import jwt from 'jsonwebtoken';
-
+import { sign } from '../middleware/auth.js';
 
 export const getUsers = async (req, res) => {
-    try{
-        const  users = await User.findAll()
-        const cleanPassword = users.map((user) =>({
-          ...user.dataValues,
-          password : undefined,
-          confirmPassword : undefined
-        }))
-      
-        res.json(cleanPassword)
-    }catch(e){
-        return res.status(500).json({message: e.message})
-    }
+  try {
+    const users = await User.findAll()
+    const cleanPassword = users.map((user) => ({
+      ...user.dataValues,
+      password: undefined,
+      confirmPassword: undefined
+    }))
+
+    res.json(cleanPassword)
+  } catch (e) {
+    return res.status(400).json({ message: e.message })
+  }
 }
 
 export const getUser = async (req, res) => {
-
   try {
-    const {id} = req.params
+    const { id } = req.params
     const user = await User.findOne({
       where: {
         id
       }
     })
 
-    if(!user){
-      return res.status(404).json({message:'Usuario no existe.'})
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no existe.' })
     }
     user.password = undefined;
     user.confirmPassword = undefined;
     res.json(user)
   } catch (error) {
-    return res.status(500).json({message: error.message})
+    return res.status(400).json({ message: error.message })
   }
 
 }
 
 export const createUser = async (req, res) => {
-    const {name,lastname, address, email, password, confirmPassword } = req.body
+  const { name, lastname, address, email, password, confirmPassword } = req.body
 
-  try{
+  try {
+    const user = await User.findOne({
+      where: {
+        email
+      }
+    });
+
+    if (user) {
+      throw new Error('Email already exists');
+    }
+
     const newUser = await User.create({
-        name,
-        lastname,
-        address,
-        email,
-        password,
-        confirmPassword
-     })
+      name,
+      lastname,
+      address,
+      email,
+      password,
+      confirmPassword
+    })
 
-     jwt.sign({newUser: newUser}, 'secretKey', (err,token) =>{
+    const userReponse = {
+      ...newUser.dataValues,
+      password: undefined,
+      confirmPassword: undefined
+    }
+
+    sign(userReponse, (err, token) => {
       res.json({
-        token: token})
-        console.log(token)
-     })
-
-    
-
-  }catch(err){
-    return res.status(500).json({message: err.message})
+        ...newUser.dataValues,
+        password: undefined,
+        confirmPassword: undefined,
+        token
+      })
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message })
   }
-
-
 }
 
-export const verifyToken =  (req, res) => {
+export const login = async (req, res) => {
+  const { email, password } = req.body
 
-  //const token = req.body.jwt;
-  //const token = createUser.tokenJ;
-  //console.log('MOSTRAR TOKEN: ' + token);
+  try {
+    const user = await User.findOne({
+      where: {
+        email
+      }
+    });
 
-  jwt.verify(req.token,'secretKey', (error, authData) => {
+    if (!user) {
+      throw new Error();
+    }
 
-    if(error){
-      res.sendStatus(403);
-      console.log(error);
-      console.log(authData);
-    }else{
-      res.json({
-        message:"Post Creado",
-        authData: authData
+    if (password !== user.dataValues.password) {
+      throw new Error();
+    }
+
+    sign({
+      ...user.dataValues,
+      password: undefined,
+      confirmPassword: undefined
+    }, (err, token) => {
+      res.status(200).send({
+        ...user.dataValues,
+        password: undefined,
+        confirmPassword: undefined,
+        token
       });
-    }
-  });
-
-};
-
-// Authorization: Bearer <token>
-export function token(req, res, next) {
-    const bearerHeader = req.headers['authorization'];
-
-    if(typeof bearerHeader !== 'undefined'){
-      const bearerToken = bearerHeader.split(" ")[1];
-      req.token = bearerToken;
-      next();
-    }else{
-      res.sendStatus(403);
-    }
-
+    })
+  } catch {
+    res.status(400).send({ error: 'Email or password is wrong' })
+  }
 }
 
 export const updateUser = async (req, res) => {
- 
+
   try {
-    const {id} = req.params;
-    const {name,lastname, address, email, password, confirmPassword} = req.body
+    const { id } = req.params;
+    const { name, lastname, address, email, password, confirmPassword } = req.body
     const user = await User.findByPk(id)
 
     user.name = name
@@ -122,31 +133,28 @@ export const updateUser = async (req, res) => {
 
     res.json(user)
 
-  }catch (error) {
-    return res.status(500).json({message:error.message})
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
   }
-  
+
 }
 
 export const deleteUser = async (req, res) => {
-
   try {
-    const {id} = req.params
+    const { id } = req.params
     await User.destroy({
       where: {
         id
       }
     });
-  
+
     res.sendStatus(204)
   } catch (error) {
-    return res.status(500).json({message: error.message})
+    return res.status(500).json({ message: error.message })
   }
-
 }
 
 export const getUserPets = async (req, res) => {
-
   const { id } = req.params;
   try {
     const pets = await Pet.findAll({
@@ -154,8 +162,6 @@ export const getUserPets = async (req, res) => {
     });
     res.json(pets);
   } catch (e) {
-    return res.status(500).json({ message: e.message });
-}
-
-
+    return res.status(400).json({ message: e.message });
+  }
 }

@@ -1,46 +1,46 @@
-import {DataTypes} from 'sequelize'
+import { DataTypes } from 'sequelize'
 
-import {sequelize} from '../database/database.js';
+import { sequelize } from '../database/database.js';
 
 
-export const Pet = sequelize.define('pets',{ 
-    id:{
+export const Pet = sequelize.define('pets', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    name :{
+    name: {
         type: DataTypes.STRING
     },
-    age:{
+    age: {
         type: DataTypes.INTEGER
     },
-    gender :{
+    gender: {
         type: DataTypes.STRING
     },
-    weight :{
+    weight: {
         type: DataTypes.INTEGER
     },
-    species : {
+    species: {
         type: DataTypes.STRING
     },
-    race : {
+    race: {
         type: DataTypes.STRING
     },
-    color : {
+    color: {
         type: DataTypes.STRING
     },
-    date : {
+    date: {
         type: DataTypes.STRING
     },
-    sterilized : {
+    sterilized: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
-    description : {
+    description: {
         type: DataTypes.STRING
     }
 
-},{
+}, {
     timestamp: false
 });

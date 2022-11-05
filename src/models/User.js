@@ -1,43 +1,43 @@
-import {DataTypes} from 'sequelize'
-import {sequelize} from '../database/database.js'
+import { DataTypes } from 'sequelize'
+import { sequelize } from '../database/database.js'
 import { Pet } from './Pet.js'
 
-export const User = sequelize.define('users',{ 
-    id:{
+export const User = sequelize.define('users', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    name:{
+    name: {
         type: DataTypes.STRING
     },
-    lastname:{
+    lastname: {
         type: DataTypes.STRING
     },
-    address:{
+    address: {
         type: DataTypes.STRING
     },
-    email:{
+    email: {
         type: DataTypes.STRING
     },
-    password:{
+    password: {
         type: DataTypes.STRING
     },
-    confirmPassword:{
+    confirmPassword: {
         type: DataTypes.STRING
     }
-},{
+}, {
     timestamps: true
 });
 
 
-User.hasMany(Pet,{
+User.hasMany(Pet, {
     foreignKey: 'idUser',
     sourceKey: 'id'
 })
 
 
-Pet.belongsTo(User,{
+Pet.belongsTo(User, {
     foreignKey: 'idUser',
     targetId: 'id'
 })
