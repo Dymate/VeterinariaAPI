@@ -30,14 +30,14 @@ export const getPet = async (req, res) => {
 }
 
 export const createPet = async (req, res) => {
-  const { name, age, gender, weigth, species, race, color, date, sterilized, description, idUser } = req.body
+  const { name, age, gender, weight, species, race, color, date, sterilized, description, idUser } = req.body
 
   try {
     const newPet = await Pet.create({
       name,
       age,
       gender,
-      weigth,
+      weight,
       species,
       race,
       color,
@@ -56,13 +56,13 @@ export const createPet = async (req, res) => {
 export const updatePet = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, age, gender, weigth, species, race, color, date, sterilized, description, idUser } = req.body
+    const { name, age, gender, weight, species, race, color, date, sterilized, description, idUser } = req.body
     const pet = await Pet.findByPk(id)
 
     pet.name = name
     pet.age = age
     pet.gender = gender
-    pet.weigth = weigth
+    pet.weight = weight
     pet.species = species
     pet.race = race
     pet.color = color

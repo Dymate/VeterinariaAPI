@@ -19,7 +19,7 @@ export const Pet = sequelize.define('pets', {
         type: DataTypes.STRING
     },
     weight: {
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
     },
     species: {
         type: DataTypes.STRING
