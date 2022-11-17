@@ -118,21 +118,31 @@ export const login = async (req, res) => {
 export const updateUser = async (req, res) => {
 
   try {
-    const { id } = req.params;
-    const { name, lastname, address, email, password, confirmPassword } = req.body
-    const user = await User.findByPk(id)
+    const { id } = req.params
+    const user = await User.findOne({
+      where: {
+        id
+      }
+    })
 
-    user.name = name
-    user.lastname = lastname
-    user.address = address
-    user.email = email
-    user.password = password
-    user.confirmPassword = confirmPassword
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no existe.' })
+    }
+    else{
+      const { name, lastname, address, email, password, confirmPassword } = req.body
+      const user = await User.findByPk(id)
 
-    await user.save()
+      user.name = name
+      user.lastname = lastname
+      user.address = address
+      user.email = email
+      user.password = password
+      user.confirmPassword = confirmPassword
 
-    res.json(user)
+      await user.save()
 
+      res.json(user)
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message })
   }
@@ -142,13 +152,24 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params
-    await User.destroy({
+    const user = await User.findOne({
       where: {
         id
       }
-    });
+    })
 
-    res.sendStatus(204)
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no existe.' })
+    }
+    else{
+      await User.destroy({
+        where: {
+          id
+        }
+      });
+
+      res.sendStatus(204)
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message })
   }

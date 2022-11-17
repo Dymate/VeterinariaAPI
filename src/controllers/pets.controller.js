@@ -56,24 +56,36 @@ export const createPet = async (req, res) => {
 export const updatePet = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, age, gender, weight, species, race, color, date, sterilized, description, idUser } = req.body
-    const pet = await Pet.findByPk(id)
+    const pet = await Pet.findOne({
+      where: {
+        id
+      }
+    })
 
-    pet.name = name
-    pet.age = age
-    pet.gender = gender
-    pet.weight = weight
-    pet.species = species
-    pet.race = race
-    pet.color = color
-    pet.date = date
-    pet.sterilized = sterilized
-    pet.description = description
-    pet.idUser = idUser
+    if (!pet) {
+      return res.status(404).json({ message: 'Mascota no existe.' })
+    }
+    else{
+      const { name, age, gender, weight, species, race, color, date, sterilized, description, idUser } = req.body
+      const pet = await Pet.findByPk(id)
 
-    await pet.save()
+      pet.name = name
+      pet.age = age
+      pet.gender = gender
+      pet.weight = weight
+      pet.species = species
+      pet.race = race
+      pet.color = color
+      pet.date = date
+      pet.sterilized = sterilized
+      pet.description = description
+      pet.idUser = idUser
 
-    res.json(pet)
+      await pet.save()
+
+      res.json(pet)
+    }
+    
 
   } catch (error) {
     return res.status(400).json({ message: error.message })
@@ -82,14 +94,26 @@ export const updatePet = async (req, res) => {
 
 export const deletePet = async (req, res) => {
   try {
-    const { id } = req.params
-    await Pet.destroy({
+    const { id } = req.params;
+    const pet = await Pet.findOne({
       where: {
         id
       }
-    });
+    })
 
-    res.sendStatus(204)
+    if (!pet) {
+      return res.status(404).json({ message: 'Mascota no existe.' })
+    }
+    else{
+      await Pet.destroy({
+        where: {
+          id
+        }
+      });
+  
+      res.sendStatus(204)
+    }
+    
   } catch (error) {
     return res.status(400).json({ message: error.message })
   }
