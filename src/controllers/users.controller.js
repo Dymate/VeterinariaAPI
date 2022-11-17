@@ -49,7 +49,7 @@ export const createUser = async (req, res) => {
     });
 
     if (user) {
-      throw new Error('Email already exists');
+       return res.status(409).json({ message : 'Usuario ya existe' });
     }
 
     const newUser = await User.create({
